@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
 import heroImage from "@/assets/hero-study.jpg";
 
 const Index = () => {
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
   const [showDashboard, setShowDashboard] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
@@ -31,7 +31,7 @@ const Index = () => {
   };
 
   const handleProjectOpen = (projectId: string) => {
-    navigate(`/project/${projectId}`);
+    setLocation(`/project/${projectId}`);
   };
 
   const features = [

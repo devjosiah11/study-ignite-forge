@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import {
 
 const ProjectView = () => {
   const { projectId } = useParams();
-  const navigate = useNavigate();
+  const [location, setLocation] = useLocation();
 
   // Mock project data - in real app this would come from state/API
   const project = {
@@ -31,7 +31,7 @@ const ProjectView = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate("/");
+    setLocation("/");
   };
 
   return (
