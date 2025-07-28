@@ -26,7 +26,8 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					glow: 'hsl(var(--primary-glow))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -84,11 +85,23 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'study-glow': {
+					'0%': {
+						boxShadow: '0 0 5px hsl(var(--primary) / 0.2)'
+					},
+					'50%': {
+						boxShadow: '0 0 20px hsl(var(--primary) / 0.4), 0 0 30px hsl(var(--primary) / 0.1)'
+					},
+					'100%': {
+						boxShadow: '0 0 5px hsl(var(--primary) / 0.2)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'study-glow': 'study-glow 2s ease-in-out infinite'
 			}
 		}
 	},
