@@ -1,6 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { PlusIcon, MoonIcon, SunIcon, BookOpenIcon } from "lucide-react";
+import { 
+  PlusIcon, 
+  MoonIcon, 
+  SunIcon, 
+  BookOpenIcon, 
+  UserIcon, 
+  LogOutIcon, 
+  SettingsIcon
+} from "lucide-react";
 import { useState } from "react";
+import { Link } from "wouter";
+import { useAuth, useLogout } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface DashboardHeaderProps {
   onCreateProject: () => void;
@@ -8,10 +25,16 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ onCreateProject }: DashboardHeaderProps) {
   const [darkMode, setDarkMode] = useState(false);
+  const { user } = useAuth();
+  const logout = useLogout();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle('dark');
+  };
+
+  const handleLogout = () => {
+    logout.mutate();
   };
 
   return (
@@ -52,6 +75,40 @@ export function DashboardHeader({ onCreateProject }: DashboardHeaderProps) {
               <PlusIcon className="h-4 w-4" />
               <span className="hidden sm:inline">New Project</span>
             </Button>
+
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>
+                        {user.username.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{user.username}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="flex items-center">
+                      <SettingsIcon className="mr-2 h-4 w-4" />
+                      <span>Profile & Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOutIcon className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>

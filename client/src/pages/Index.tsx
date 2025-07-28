@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,16 @@ import heroImage from "@/assets/hero-study.jpg";
 
 const Index = () => {
   const [location, setLocation] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [showDashboard, setShowDashboard] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const handleGetStarted = () => {
-    setShowDashboard(true);
+    if (isAuthenticated) {
+      setShowDashboard(true);
+    } else {
+      setLocation("/login");
+    }
   };
 
   const handleCreateProject = () => {
@@ -64,7 +70,7 @@ const Index = () => {
     "Educational explanations tailored for learning"
   ];
 
-  if (showDashboard) {
+  if (isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
         <DashboardHeader onCreateProject={handleCreateProject} />

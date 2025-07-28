@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ProjectCard } from "./ProjectCard";
 import { CreateProjectModal } from "./CreateProjectModal";
 import { Button } from "@/components/ui/button";
@@ -13,104 +14,49 @@ import {
   BookOpenIcon,
   PlusIcon
 } from "lucide-react";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  lastAccessed: Date;
-  fileCount: number;
-  imageCount: number;
-  pdfCount: number;
-  queryCount: number;
-  category: string;
-  aiModel?: string;
-}
+import type { Project } from "@shared/schema";
 
 interface ProjectDashboardProps {
   onProjectOpen: (projectId: string) => void;
 }
 
-// Sample data for demonstration
-const sampleProjects: Project[] = [
-  {
-    id: "1",
-    name: "Biology 101",
-    description: "Introduction to Biology course materials and study notes",
-    createdAt: new Date(2024, 0, 15),
-    lastAccessed: new Date(2024, 0, 28),
-    fileCount: 12,
-    imageCount: 8,
-    pdfCount: 4,
-    queryCount: 34,
-    category: "Biology",
-    aiModel: "GPT-4"
-  },
-  {
-    id: "2", 
-    name: "Machine Learning Research",
-    description: "Collection of ML papers and implementation notes",
-    createdAt: new Date(2024, 0, 10),
-    lastAccessed: new Date(2024, 0, 27),
-    fileCount: 25,
-    imageCount: 15,
-    pdfCount: 10,
-    queryCount: 67,
-    category: "Computer Science",
-    aiModel: "Claude 3"
-  },
-  {
-    id: "3",
-    name: "History of Art",
-    description: "Art history course covering Renaissance to Modern periods",
-    createdAt: new Date(2024, 0, 20),
-    lastAccessed: new Date(2024, 0, 25),
-    fileCount: 18,
-    imageCount: 12,
-    pdfCount: 6,
-    queryCount: 23,
-    category: "Art History",
-    aiModel: "Gemini Pro"
-  }
-];
-
 export function ProjectDashboard({ onProjectOpen }: ProjectDashboardProps) {
-  const [projects, setProjects] = useState<Project[]>(sampleProjects);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  const categories = Array.from(new Set(projects.map(p => p.category)));
+  const { data: projectsData, isLoading } = useQuery({
+    queryKey: ["/api/projects"],
+  });
+
+  const projects = projectsData?.projects || [];
+  const categories = Array.from(new Set(projects.map((p: Project) => p.category)));
   
-  const filteredProjects = projects.filter(project => {
+  const filteredProjects = projects.filter((project: Project) => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchQuery.toLowerCase());
+                         (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = !selectedCategory || project.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-6 py-8">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading projects...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleCreateProject = (projectData: {
     name: string;
     description: string;
     category: string;
-    aiModel: string;
   }) => {
-    const newProject: Project = {
-      id: Date.now().toString(),
-      name: projectData.name,
-      description: projectData.description,
-      createdAt: new Date(),
-      lastAccessed: new Date(),
-      fileCount: 0,
-      imageCount: 0,
-      pdfCount: 0,
-      queryCount: 0,
-      category: projectData.category,
-      aiModel: projectData.aiModel
-    };
-    
-    setProjects([newProject, ...projects]);
+    // This will be handled by the CreateProjectModal using API
+    console.log("Creating project:", projectData);
   };
 
   const handleProjectEdit = (projectId: string) => {

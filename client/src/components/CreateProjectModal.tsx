@@ -8,16 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpenIcon, BrainIcon, GraduationCapIcon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import { insertProjectSchema, type InsertProject } from "@shared/schema";
 
 interface CreateProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateProject: (project: {
-    name: string;
-    description: string;
-    category: string;
-    aiModel: string;
-  }) => void;
 }
 
 const projectTemplates = [
@@ -63,14 +61,46 @@ const aiModels = [
   { id: "grok", name: "Grok", provider: "xAI", description: "Real-time web search capabilities" },
 ];
 
-export function CreateProjectModal({ open, onOpenChange, onCreateProject }: CreateProjectModalProps) {
+export function CreateProjectModal({ open, onOpenChange }: CreateProjectModalProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     category: "",
-    aiModel: ""
   });
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createProject = useMutation({
+    mutationFn: async (data: InsertProject) => {
+      return apiRequest("/api/projects", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      toast({
+        title: "Project created!",
+        description: "Your new study project is ready to use.",
+      });
+      onOpenChange(false);
+      resetForm();
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to create project",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({ name: "", description: "", category: "" });
+    setSelectedTemplate("");
+  };
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
@@ -80,19 +110,22 @@ export function CreateProjectModal({ open, onOpenChange, onCreateProject }: Crea
         name: template.placeholder.name,
         description: template.placeholder.description,
         category: template.category,
-        aiModel: formData.aiModel
       });
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.name && formData.description && formData.aiModel) {
-      onCreateProject(formData);
-      setFormData({ name: "", description: "", category: "", aiModel: "" });
-      setSelectedTemplate("");
-      onOpenChange(false);
+    
+    if (!formData.name || !formData.category) {
+      return;
     }
+
+    createProject.mutate({
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+    });
   };
 
   return (
@@ -179,37 +212,16 @@ export function CreateProjectModal({ open, onOpenChange, onCreateProject }: Crea
             />
           </div>
 
-          {/* AI Model Selection */}
-          <div className="space-y-3">
-            <Label>Preferred AI Model</Label>
-            <Select value={formData.aiModel} onValueChange={(value) => setFormData({ ...formData, aiModel: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select an AI model" />
-              </SelectTrigger>
-              <SelectContent>
-                {aiModels.map((model) => (
-                  <SelectItem key={model.id} value={model.id}>
-                    <div className="flex items-center justify-between w-full">
-                      <div>
-                        <div className="font-medium">{model.name}</div>
-                        <div className="text-xs text-muted-foreground">{model.description}</div>
-                      </div>
-                      <Badge variant="outline" className="ml-2 text-xs">
-                        {model.provider}
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="study">
-              Create Project
+            <Button 
+              type="submit" 
+              variant="study"
+              disabled={createProject.isPending}
+            >
+              {createProject.isPending ? "Creating..." : "Create Project"}
             </Button>
           </div>
         </form>
