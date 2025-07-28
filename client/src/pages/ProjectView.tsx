@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,28 +12,45 @@ import {
   ImageIcon,
   BookmarkIcon 
 } from "lucide-react";
+import type { Project } from "@shared/schema";
 
 const ProjectView = () => {
   const { projectId } = useParams();
   const [location, setLocation] = useLocation();
 
-  // Mock project data - in real app this would come from state/API
-  const project = {
-    id: projectId,
-    name: "Biology 101",
-    description: "Study materials for introductory biology course",
-    category: "Science",
-    fileCount: 12,
-    imageCount: 8,
-    pdfCount: 4,
-    queryCount: 23,
-    lastAccessed: "2 hours ago",
-    aiModel: "GPT-4"
-  };
+  // Fetch project data from API
+  const { data: projectsData, isLoading } = useQuery<{ projects: Project[] }>({
+    queryKey: ["/api/projects"],
+  });
+
+  const project = projectsData?.projects?.find((p: Project) => p.id === projectId);
 
   const handleBackToDashboard = () => {
     setLocation("/");
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Loading project...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold">Project not found</h2>
+          <p className="text-muted-foreground">The project you're looking for doesn't exist.</p>
+          <Button onClick={handleBackToDashboard}>Back to Dashboard</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
@@ -108,7 +126,7 @@ const ProjectView = () => {
                     <Button>Ask</Button>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Using {project.aiModel} • {project.queryCount} queries asked
+                    Ready to answer questions about your study materials
                   </p>
                 </div>
               </CardContent>
@@ -126,23 +144,23 @@ const ProjectView = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileTextIcon className="h-4 w-4 text-muted-foreground" />
-                    <span>PDF Files</span>
+                    <span>Files</span>
                   </div>
-                  <Badge variant="secondary">{project.pdfCount}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                    <span>Images</span>
-                  </div>
-                  <Badge variant="secondary">{project.imageCount}</Badge>
+                  <Badge variant="secondary">0</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <MessageSquareIcon className="h-4 w-4 text-muted-foreground" />
-                    <span>Queries</span>
+                    <span>AI Queries</span>
                   </div>
-                  <Badge variant="secondary">{project.queryCount}</Badge>
+                  <Badge variant="secondary">0</Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BookmarkIcon className="h-4 w-4 text-muted-foreground" />
+                    <span>Collections</span>
+                  </div>
+                  <Badge variant="secondary">0</Badge>
                 </div>
               </CardContent>
             </Card>

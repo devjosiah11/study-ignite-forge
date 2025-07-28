@@ -2,8 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  FileTextIcon, 
-  ImageIcon, 
+  MessageSquareIcon,
   MoreVerticalIcon, 
   BookOpenIcon,
   ClockIcon,
@@ -65,27 +64,18 @@ export function ProjectCard({ project, onOpen, onEdit }: ProjectCardProps) {
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <FileIcon className="h-4 w-4" />
-            <span>{project.fileCount} files</span>
+            <span>0 files</span>
           </div>
           <div className="flex items-center gap-1">
-            <ImageIcon className="h-4 w-4" />
-            <span>{project.imageCount}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <FileTextIcon className="h-4 w-4" />
-            <span>{project.pdfCount}</span>
+            <MessageSquareIcon className="h-4 w-4" />
+            <span>Ready for AI queries</span>
           </div>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {project.aiModel && (
-              <Badge variant="secondary" className="text-xs">
-                {project.aiModel}
-              </Badge>
-            )}
             <Badge variant="outline" className="text-xs">
-              {project.queryCount} queries
+              {project.category}
             </Badge>
           </div>
           
