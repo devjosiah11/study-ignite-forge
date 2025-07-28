@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { ProjectDashboard } from "@/components/ProjectDashboard";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
 import heroImage from "@/assets/hero-study.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [showDashboard, setShowDashboard] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
@@ -29,8 +31,7 @@ const Index = () => {
   };
 
   const handleProjectOpen = (projectId: string) => {
-    // TODO: Navigate to project view
-    console.log("Opening project:", projectId);
+    navigate(`/project/${projectId}`);
   };
 
   const features = [
