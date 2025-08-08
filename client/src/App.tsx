@@ -26,23 +26,23 @@ function AppRoutes() {
     );
   }
 
+  if (isAuthenticated) {
+    return (
+      <Switch>
+        <Route path="/" component={Index} />
+        <Route path="/project/:projectId" component={ProjectView} />
+        <Route path="/profile" component={Profile} />
+        <Route component={NotFound} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
-      {isAuthenticated ? (
-        <>
-          <Route path="/" component={Index} />
-          <Route path="/project/:projectId" component={ProjectView} />
-          <Route path="/profile" component={Profile} />
-          <Route component={NotFound} />
-        </>
-      ) : (
-        <>
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route path="/" component={Index} />
-          <Route component={NotFound} />
-        </>
-      )}
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/" component={Index} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
