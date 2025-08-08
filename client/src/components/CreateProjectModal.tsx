@@ -16,6 +16,7 @@ import { insertProjectSchema, type InsertProject } from "@shared/schema";
 interface CreateProjectModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onProjectCreated?: (projectId: string) => void;
 }
 
 const projectTemplates = [
